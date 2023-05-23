@@ -46,3 +46,13 @@
 			```sql
 			select * from TABELA_DE_PRODUTOS where sabor not in ('uva', 'manga') and (PRECO_DE_LISTA between 6 and 10)
 			```
+	* **like**: cláusula utilizada para procurar, dentro de uma string, por um valor específico.
+		* Por exemplo, vamos procurar por vendedores que têm a letra "*m*" em seu nome:
+			```sql
+			select * from TABELA_DE_VENDEDORES where nome like '%m%'
+			```
+		* Outro exemplo, procuremos por notas fiscais que têm CPF que apenas iniciam com "943":
+			```sql
+			select * from NOTAS_FISCAIS where cpf like '943%'
+			```
+		* Vale salientar que o símbolo de porcentagem entra no comando como um "coringa" de textos.
