@@ -97,3 +97,47 @@
 			| | codigo | qtd_total | vendas_totais
 			| --- | --- | --- | --- |
 			| 1 | 1101035 | 388042 | 7103
+	* **having**: localizado após o *order by*, serve como um meio de testar os resultados das funções de agregação do *select*. Ele, ao contrário de comandos como *where*, não coleta os dados dos campos em si, mas sim o resultado que é dado após a execução de uma função de agregação em cima desse campo.
+		* Digamos que, por exemplo, desejo verificar em quais estados o limite total de crédito dos clientes é maior que 900000:
+			```sql
+			select estado, sum(limite_de_credito) as crédito from TABELA_DE_CLIENTES group by estado having sum(limite_de_credito) > 900000;
+			```
+			* Tal consulta vai me exibir somente o estado do RJ, com 995000 de crédito total, já que SP tem menos que isso.
+	* **case**: sim, esta cláusula nos permite gerar uma estrutura de classificação no SQL com condições e testes lógicos. Sua sintaxe padrão é:
+		```sql
+		CASE WHEN <CONDIÇÃO> THEN <VALOR>
+			WHEN <CONDIÇÃO> THEN <VALOR>
+			WHEN <CONDIÇÃO> THEN <VALOR>
+			ELSE <VALOR> END
+		```
+		* Por exemplo, se quisermos pegar dados de vendedores e classificarmos eles em "vendedores antigos" e "recentes", podemos fazer:
+			```sql
+			select 
+				matricula,
+				nome,
+				(case when year(data_admissao) < 2015 then 'vendedor antigo'
+				else 'vendedor recente' end) as periodo_tempo
+			from TABELA_DE_VENDEDORES
+			```
+		* E se quisermos classificar os sucos entre 1) caro, a partir dos 12 reais; 2) em conta, entre os 6 e 12 reais; ou 3) barato, abaixo de 6 reais? Teremos:
+			```sql
+			select NOME_DO_PRODUTO, TAMANHO, PRECO_DE_LISTA,
+				(case when PRECO_DE_LISTA >= 12 then 'produto caro'
+					  when PRECO_DE_LISTA >= 6 and PRECO_DE_LISTA < 12 then 'produto em conta'
+					  else 'produto barato' end) as CLASSIFICACAO
+			from TABELA_DE_PRODUTOS
+			```
+		* Podemos, ainda, contar a quantidade de produtos de cada classificação:
+			```sql
+			select 
+				(case when PRECO_DE_LISTA >= 12 then 'produto caro'
+					when PRECO_DE_LISTA >= 6 and PRECO_DE_LISTA < 12 then 'produto em conta'
+				else 'produto barato' end) as CLASSIFICACAO, count(*) as NUMERO_DE_PRODUTOS
+			from TABELA_DE_PRODUTOS
+			group by
+				(case when PRECO_DE_LISTA >= 12 then 'produto caro'
+					when PRECO_DE_LISTA >= 6 and PRECO_DE_LISTA < 12 then 'produto em conta'
+				else 'produto barato' end)
+			```
+			* Para agrupar uma condição, você deve repeti-la no *group by*.
+			* Temos que existem, então, 9 produtos baratos e 11 caros e em conta.
