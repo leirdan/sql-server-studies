@@ -208,3 +208,28 @@
 	order by quantidade desc
 	```
 	* Estes comandos terão o mesmo efeito do primeiro mostrado, só que bem mais legíveis.
+## 6. FUNÇÕES
+* Funções nada mais são que procedimentos que recebem uma entrada, realizam uma operação e devolvem uma saída modificada. Existem diversas funções no SQL dos mais diversos tipos, e não há um padrão determinado pela ANSI, assim, cada SGBD tem funções próprias, apesar de muitas serem compartilhadas.
+* Para testar uma função simples, basta escrever `select [Função] [Campo] from [Tabela]`. Vejamos adiante alguns tipos.
+### 6.1 Funções de texto
+* **lower**: transforma todos os caracteres de uma string em minúsculos;
+* **upper**: transforma todos os caracteres de uma string em maiúsculos;
+* **concat**: concatena duas ou mais cadeias de caracteres em uma única. Por exemplo: `select concat('its a', ' long way ', 'down.')`;
+* **right**: coleta os últimos caracteres de uma *string* (ou os caracteres à direita). Por exemplo, o código `select right('i used to have a best friend [but then he gave me a std], 27')` imprime somente "[but then he gave me and std]";
+* **left**: coleta os primeiros caracteres de uma *string* (ou os caracteres à esquerda). Por exemplo, o código `select left('garden in the bones', 6)` imprime somente "garden";
+* **replicate**: repete *x* vezes a *string* informada. Por exemplo, o código `select replicate('better ', 3)` resultará em "better better better";
+* **substring**: coleta, por meio de um intervalo informado pelo usuário, uma parte da cadeia de caracteres e retorna esta parte resultante. Por exemplo, o código `select substring('in another life', 4, 15)` retornará "another life";
+* **trim**: remove os espaços em branco presentes no início/fim da *string*;
+* **replace**: substitue um conjunto de caracteres por outro. Por exemplo, o código `select replace('vinum sabbathi', ' ', '_')` resulta em "vinum_sabbathi";
+* **len**: retorna o número de caracteres totais do texto;
+* **charindex**: procura por uma substring dentro de uma string e retorna a posição do primeiro elemento da substring. Por exemplo, o código `select charindex('you', 'im always gonna look for your face')` retorna "26" (a posição na string onde o caractere 'y' é detectado)
+* Exemplo prático: **faça uma consulta SQL e retorne somente o primeiro nome de cada cliente**.
+	* Resposta:
+		```sql
+		select substring(
+			nome, 
+			0, 
+			charindex('_', replace(nome, ' ', '_'), 0)
+			) 
+			from TABELA_DE_CLIENTES
+		```
