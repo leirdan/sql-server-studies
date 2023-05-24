@@ -1,14 +1,14 @@
-# CONSULTAS AVAN«ADAS EM SQL SERVER 2022 E SQL SERVER MANAGEMENT STUDIO 2019 
-* Primeiro, cria-se o banco de dados **SUCOS_VENDAS** atravÈs dos cÛdigos SQL do arquivo "/src/Cria_Banco.sql";
-* ApÛs isso, carrega-se o arquivo "src/Carga_Cadastros.sql" para adicionar os vendedores e os produtos;
-* Em seguida, executa-se o arquivo "src/Carga_Notas.sql" para cadastrar todas as notas fiscais dos produtos. … um arquivo gigantesco, ent„o pode demorar para acontecer todas as inserÁıes.
-* Por fim, executa-se tambÈm o arquivo "src/Carga_Itens_Notas.sql" para carregar os itens das notas fiscais. Novamente, um arquivo colossal, ent„o aguarde.
+# CONSULTAS AVAN√áADAS EM SQL SERVER 2022 E SQL SERVER MANAGEMENT STUDIO 2019 
+* Primeiro, cria-se o banco de dados **SUCOS_VENDAS** atrav√©s dos c√≥digos SQL do arquivo "/src/Cria_Banco.sql";
+* Ap√≥s isso, carrega-se o arquivo "src/Carga_Cadastros.sql" para adicionar os vendedores e os produtos;
+* Em seguida, executa-se o arquivo "src/Carga_Notas.sql" para cadastrar todas as notas fiscais dos produtos. √â um arquivo gigantesco, ent√£o pode demorar para acontecer todas as inser√ß√µes.
+* Por fim, executa-se tamb√©m o arquivo "src/Carga_Itens_Notas.sql" para carregar os itens das notas fiscais. Novamente, um arquivo colossal, ent√£o aguarde.
 
 ## 1. FILTRAGEM
 * Podemos utilizar dos filtros nos comandos SQL para escrever consultas melhores.
 * Exemplos de filtros:
-	* **Where [express„o lÛgica]**: aplica um filtro no SQL onde uma linha ser· exibida se, e somente se, ela atender ‡ condiÁ„o do where;
-		* Por exemplo, vamos listar somente as informaÁıes de produtos vendidos pelo vendedor de matrÌcula "00236":
+	* **Where [express√£o l√≥gica]**: aplica um filtro no SQL onde uma linha ser√° exibida se, e somente se, ela atender √† condi√ß√£o do where;
+		* Por exemplo, vamos listar somente as informa√ß√µes de produtos vendidos pelo vendedor de matr√≠cula "00236":
 		```sql
 		SELECT v.MATRICULA, nf.NUMERO, inf.CODIGO_DO_PRODUTO, inf.PRECO 
 			from NOTAS_FISCAIS nf
@@ -18,14 +18,14 @@
 				on v.MATRICULA = nf.MATRICULA
 			where v.MATRICULA = '00236'
 		```
-		* Outro exemplo, listar todas as informaÁıes de clientes que moram em ruas "maiores" que "R. Benicio de Abreu";
+		* Outro exemplo, listar todas as informa√ß√µes de clientes que moram em ruas "maiores" que "R. Benicio de Abreu";
 		```sql
 		select * from TABELA_DE_CLIENTES where ENDERECO_1 >= 'R. Benicio de Abreu'
 		```
-		* Isso n„o significa que esse endereÁo È maior que os outros ou nada, mas sim que a consulta SQL retornar· os valores que, em ordem alfabÈtica, vÍm depois do "R. BenÌcio de Abreu";
-	* **and** e **or**: expressıes usadas para montar condiÁıes lÛgicas mais complexas, podem ser utilizadas junto com o *where*, para, por exemplo, delimitar ainda mais o alcance de uma consulta; 
-		* o *and* retornar· positivo e, portanto, uma linha ser· impressa, se e somente se as duas ou mais condiÁıes forem todas verdadeiras, enquanto o *or* o far· tambÈm mas desde que pelo menos um dos resultados for verdadeiro;
-		* Por exemplo, liste todos os clientes de S„o Paulo e com o CEP "3123212"`. Perceba que a consulta n„o retornar· nada, pois uma das condiÁıes (CEP 3123212) n„o È verdadeira e n„o h· valores assim na tabela:
+		* Isso n√£o significa que esse endere√ßo √© maior que os outros ou nada, mas sim que a consulta SQL retornar√° os valores que, em ordem alfab√©tica, v√™m depois do "R. Ben√≠cio de Abreu";
+	* **and** e **or**: express√µes usadas para montar condi√ß√µes l√≥gicas mais complexas, podem ser utilizadas junto com o *where*, para, por exemplo, delimitar ainda mais o alcance de uma consulta; 
+		* o *and* retornar√° positivo e, portanto, uma linha ser√° impressa, se e somente se as duas ou mais condi√ß√µes forem todas verdadeiras, enquanto o *or* o far√° tamb√©m mas desde que pelo menos um dos resultados for verdadeiro;
+		* Por exemplo, liste todos os clientes de S√£o Paulo e com o CEP "3123212"`. Perceba que a consulta n√£o retornar√° nada, pois uma das condi√ß√µes (CEP 3123212) n√£o √© verdadeira e n√£o h√° valores assim na tabela:
 			```sql	
 			select * from TABELA_DE_CLIENTES where estado = 'Sp' and cep = '3123212'
 			```
@@ -33,62 +33,62 @@
 			```sql
 			select * from TABELA_DE_PRODUTOS where EMBALAGEM = 'pet' or tamanho <> '700 ml'
 			```
-	* **not**: cl·usula que nega uma express„o lÛgica e *inverte* seu resultado. Por exemplo, para realizar uma consulta de produtos que n„o s„o PET ou tem 700ml de tamanho, podemos fazer:
+	* **not**: cl√°usula que nega uma express√£o l√≥gica e *inverte* seu resultado. Por exemplo, para realizar uma consulta de produtos que n√£o s√£o PET ou tem 700ml de tamanho, podemos fazer:
 		```sql
 		select * from TABELA_DE_PRODUTOS where not EMBALAGEM = 'pet' or tamanho = '700 ml'
 		```
-	* ObservaÁ„o: quando tivermos muitas expressıes *or* podemos escrever a consulta utilizando o '*in*' para simplificar:
-		* Suponha que quero selecionar todos os sucos que n„o sejam de uva, manga ou laranja;
+	* Observa√ß√£o: quando tivermos muitas express√µes *or* podemos escrever a consulta utilizando o '*in*' para simplificar:
+		* Suponha que quero selecionar todos os sucos que n√£o sejam de uva, manga ou laranja;
 			```sql
 			select * from TABELA_DE_PRODUTOS where sabor not in ('uva', 'manga', 'LARANJA')
 			```
-	* **between**: podemos utilizar tal cl·usula para abrigar um intervalo entre dois n˙meros durante uma consulta;
-		* Para a consulta anterior, suponha que desejo listar os sucos que n„o s„o de uva nem de manga e tambÈm que tenham o preÁo entre 6 e 10 reais:
+	* **between**: podemos utilizar tal cl√°usula para abrigar um intervalo entre dois n√∫meros durante uma consulta;
+		* Para a consulta anterior, suponha que desejo listar os sucos que n√£o s√£o de uva nem de manga e tamb√©m que tenham o pre√ßo entre 6 e 10 reais:
 			```sql
 			select * from TABELA_DE_PRODUTOS where sabor not in ('uva', 'manga') and (PRECO_DE_LISTA between 6 and 10)
 			```
-	* **like**: cl·usula utilizada para procurar, dentro de uma string, por um valor especÌfico;
-		* Por exemplo, vamos procurar por vendedores que tÍm a letra "*m*" em seu nome:
+	* **like**: cl√°usula utilizada para procurar, dentro de uma string, por um valor espec√≠fico;
+		* Por exemplo, vamos procurar por vendedores que t√™m a letra "*m*" em seu nome:
 			```sql
 			select * from TABELA_DE_VENDEDORES where nome like '%m%'
 			```
-		* Outro exemplo, procuremos por notas fiscais que tÍm CPF que apenas iniciam com "943":
+		* Outro exemplo, procuremos por notas fiscais que t√™m CPF que apenas iniciam com "943":
 			```sql
 			select * from NOTAS_FISCAIS where cpf like '943%'
 			```
-		* Vale salientar que o sÌmbolo de porcentagem entra no comando como um "coringa" de textos.
-	* **distinct**: cl·usula utilizada junto do *select* para informar que apenas registros com valores diferentes sejam retornados na consulta;
-		* Muito ˙til para quando desejamos selecionar apenas uma coluna de uma tabela que contÈm muitos valores repetidos;
-		* Por exemplo, vamos listar apenas as cidades onde os clientes moram mas sem repetÌ-las:
+		* Vale salientar que o s√≠mbolo de porcentagem entra no comando como um "coringa" de textos.
+	* **distinct**: cl√°usula utilizada junto do *select* para informar que apenas registros com valores diferentes sejam retornados na consulta;
+		* Muito √∫til para quando desejamos selecionar apenas uma coluna de uma tabela que cont√©m muitos valores repetidos;
+		* Por exemplo, vamos listar apenas as cidades onde os clientes moram mas sem repeti-las:
 			```sql
 			select distinct cidade from TABELA_DE_CLIENTES 
 			```	
-	* **top**: cl·usula utilizada para selecionar somente um n˙mero *x* de linhas a ser exibida na saÌda. … ideal para ser utilizado em tabelas com muitos registros.
-		* Por exemplo, vamos selecionar apenas as 100 primeiras notas fiscais dos produtos onde o cpf do cliente comeÁa com "192":
+	* **top**: cl√°usula utilizada para selecionar somente um n√∫mero *x* de linhas a ser exibida na sa√≠da. √â ideal para ser utilizado em tabelas com muitos registros.
+		* Por exemplo, vamos selecionar apenas as 100 primeiras notas fiscais dos produtos onde o cpf do cliente come√ßa com "192":
 			```sql
 			select top 100 * from NOTAS_FISCAIS where cpf like '192%'
 			```
-## 2. ORDENA«√O
-* Podemos utilizar tambÈm alguns comandos para ordenar a nossa saÌda e limitar os resultados;
-* Exemplos de comandos de ordenaÁ„o:
-	* **order by**: usada para ordenar em ordem alfabÈtica/numÈrica de forma crescente ou decrescente a saÌda da consulta, a depender do que o usu·rio deseja ('*asc*' para crescente, '*desc*' para decrescente);
+## 2. ORDENA√á√ÉO
+* Podemos utilizar tamb√©m alguns comandos para ordenar a nossa sa√≠da e limitar os resultados;
+* Exemplos de comandos de ordena√ß√£o:
+	* **order by**: usada para ordenar em ordem alfab√©tica/num√©rica de forma crescente ou decrescente a sa√≠da da consulta, a depender do que o usu√°rio deseja ('*asc*' para crescente, '*desc*' para decrescente);
 		* Por exemplo, liste, de forma crescente, as 5000 primeiras notas fiscais que terminam com o cpf '787':
 			```sql
 			select top 5000 * from NOTAS_FISCAIS  where cpf like '%787' order by CPF asc
 			```	
-	* **group by**: cl·usula utilizada quando h·, no mÌnimo, uma funÁ„o de agregaÁ„o na seleÁ„o (SUM, AVG, MIN ou MAX). Ela necessita que vocÍ declare os campos da consulta que n„o est„o dentro dessas funÁıes de agregaÁ„o, para que seja possÌvel uni-los.
-		* Por exemplo, suponha que vamos verificar a mÈdia das idades dos clientes de cada estado do nosso banco de dados. Assim, temos:
+	* **group by**: cl√°usula utilizada quando h√°, no m√≠nimo, uma fun√ß√£o de agrega√ß√£o na sele√ß√£o (SUM, AVG, MIN ou MAX). Ela necessita que voc√™ declare os campos da consulta que n√£o est√£o dentro dessas fun√ß√µes de agrega√ß√£o, para que seja poss√≠vel uni-los.
+		* Por exemplo, suponha que vamos verificar a m√©dia das idades dos clientes de cada estado do nosso banco de dados. Assim, temos:
 			```sql
 			select estado, avg(idade) as media_idade from TABELA_DE_CLIENTES group by estado
 			```
-			* NÛs teremos que o resultado dessa consulta ser·:
+			* N√≥s teremos que o resultado dessa consulta ser√°:
 		
 				| | estado | media_idade |
 				| --- | --- | --- |
 				| 1 | RJ | 21| 
 				| 2 | SP | 27| 
-			* Ou seja, o SQL Server agrupou os estados (que se repetiam) em um local sÛ e executou a funÁ„o de mÈdia (AVG).
-		* Em outro exemplo, vamos verificar o n˙mero total de produtos com o cÛdigo 1101035 que foram vendidos e quantas vezes foi vendido:
+			* Ou seja, o SQL Server agrupou os estados (que se repetiam) em um local s√≥ e executou a fun√ß√£o de m√©dia (AVG).
+		* Em outro exemplo, vamos verificar o n√∫mero total de produtos com o c√≥digo 1101035 que foram vendidos e quantas vezes foi vendido:
 			```sql
 			select CODIGO_DO_PRODUTO as codigo, sum(QUANTIDADE) as qtd_total, count (codigo_do_produto) as vendas_totais from ITENS_NOTAS_FISCAIS where CODIGO_DO_PRODUTO = '1101035' group by CODIGO_DO_PRODUTO 
 			```
@@ -97,17 +97,17 @@
 			| | codigo | qtd_total | vendas_totais
 			| --- | --- | --- | --- |
 			| 1 | 1101035 | 388042 | 7103
-	* **having**: localizado apÛs o *order by*, serve como um meio de testar os resultados das funÁıes de agregaÁ„o do *select*. Ele, ao contr·rio de comandos como *where*, n„o coleta os dados dos campos em si, mas sim o resultado que È dado apÛs a execuÁ„o de uma funÁ„o de agregaÁ„o em cima desse campo.
-		* Digamos que, por exemplo, desejo verificar em quais estados o limite total de crÈdito dos clientes È maior que 900000:
+	* **having**: localizado ap√≥s o *order by*, serve como um meio de testar os resultados das fun√ß√µes de agrega√ß√£o do *select*. Ele, ao contr√°rio de comandos como *where*, n√£o coleta os dados dos campos em si, mas sim o resultado que √© dado ap√≥s a execu√ß√£o de uma fun√ß√£o de agrega√ß√£o em cima desse campo.
+		* Digamos que, por exemplo, desejo verificar em quais estados o limite total de cr√©dito dos clientes √© maior que 900000:
 			```sql
-			select estado, sum(limite_de_credito) as crÈdito from TABELA_DE_CLIENTES group by estado having sum(limite_de_credito) > 900000;
+			select estado, sum(limite_de_credito) as cr√©dito from TABELA_DE_CLIENTES group by estado having sum(limite_de_credito) > 900000;
 			```
-			* Tal consulta vai me exibir somente o estado do RJ, com 995000 de crÈdito total, j· que SP tem menos que isso.
-	* **case**: sim, esta cl·usula nos permite gerar uma estrutura de classificaÁ„o no SQL com condiÁıes e testes lÛgicos. Sua sintaxe padr„o È:
+			* Tal consulta vai me exibir somente o estado do RJ, com 995000 de cr√©dito total, j√° que SP tem menos que isso.
+	* **case**: sim, esta cl√°usula nos permite gerar uma estrutura de classifica√ß√£o no SQL com condi√ß√µes e testes l√≥gicos. Sua sintaxe padr√£o √©:
 		```sql
-		CASE WHEN <CONDI«√O> THEN <VALOR>
-			WHEN <CONDI«√O> THEN <VALOR>
-			WHEN <CONDI«√O> THEN <VALOR>
+		CASE WHEN <CONDI√á√ÉO> THEN <VALOR>
+			WHEN <CONDI√á√ÉO> THEN <VALOR>
+			WHEN <CONDI√á√ÉO> THEN <VALOR>
 			ELSE <VALOR> END
 		```
 		* Por exemplo, se quisermos pegar dados de vendedores e classificarmos eles em "vendedores antigos" e "recentes", podemos fazer:
@@ -127,7 +127,7 @@
 					  else 'produto barato' end) as CLASSIFICACAO
 			from TABELA_DE_PRODUTOS
 			```
-		* Podemos, ainda, contar a quantidade de produtos de cada classificaÁ„o:
+		* Podemos, ainda, contar a quantidade de produtos de cada classifica√ß√£o:
 			```sql
 			select 
 				(case when PRECO_DE_LISTA >= 12 then 'produto caro'
@@ -139,5 +139,37 @@
 					when PRECO_DE_LISTA >= 6 and PRECO_DE_LISTA < 12 then 'produto em conta'
 				else 'produto barato' end)
 			```
-			* Para agrupar uma condiÁ„o, vocÍ deve repeti-la no *group by*.
-			* Temos que existem, ent„o, 9 produtos baratos e 11 caros e em conta.
+			* Para agrupar uma condi√ß√£o, voc√™ deve repeti-la no *group by*.
+			* Temos que existem, ent√£o, 9 produtos baratos, 11 caros e 11 em conta.
+## 3. JOINS
+[Verificar neste reposit√≥rio.](https://github.com/leirdan/sqlserver-studies)
+
+## 4. UNI√ÉO DE CONSULTAS
+* Ao contr√°rio da jun√ß√£o de consultas, que retorna duas tabelas uma ao lado da outra, a *uni√£o de consultas* resulta em uma tabela com as linhas da primeira tabela e, em seguida, as linhas da segunda tabela.
+* Para que tal aconte√ßa, necessita-se de duas condi√ß√µes b√°sicas:
+	* Que o n√∫mero de **campos** (colunas) selecionados da tabela A seja igual ao n√∫mero de **campos** selecionados da tabela B;
+	* Que estes campos sejam do mesmo tipo.
+* Existem os seguintes comandos de uni√£o:
+	* **union**: une as duas ou mais consultas, exibindo os nomes das colunas a partir da primeira tabela a ser consultada e tamb√©m *sem repeti√ß√£o de valores*;
+		* Por exemplo, vamos pegar a lista total de bairros das tabelas de vendedor e cliente:
+			```sql
+			select BAIRRO from TABELA_DE_CLIENTES 
+			union 
+			select BAIRRO from TABELA_DE_VENDEDORES
+			```
+		* Temos, como resultado, uma lista de 13 bairros, mas sem indica√ß√£o de onde eles vieram.
+	* **union all**: far√° a mesma coisa que o comando union, com exce√ß√£o de que ele *repetir√°* os valores.
+		* Por exemplo, vamos pegar a lista total de bairros das tabelas de vendedor e cliente mas sem impedir que os registros se repitam:
+			```sql
+			select BAIRRO from TABELA_DE_CLIENTES 
+			union all
+			select BAIRRO from TABELA_DE_VENDEDORES
+			```
+		* Temos, como resultado, uma lista de 16 bairros e, novamente, sem indica√ß√£o de onde vieram.
+	* Mas e se quisermos descobrir de quais tabelas cada dado veio? Podemos criar uma nova coluna em cada select, chamada "cliente" ou "vendedor" para indicar de onde est√° vindo esse dado:
+		```sql
+		select BAIRRO, 'cliente' as origem from TABELA_DE_CLIENTES 
+		union 
+		select BAIRRO, 'vendedor' as origem from TABELA_DE_VENDEDORES
+		```
+		* Como resultado, teremos 16 registros mesmo utilizando o union, pois, al√©m dele n√£o conseguir mais realizar a distin√ß√£o de valores repetidos, o nosso intuito √© realmente saber de onde veio cada dado, mesmo que este se repita.
