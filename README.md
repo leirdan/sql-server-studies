@@ -250,3 +250,17 @@ Além disso, escreverei algumas adicionais:
 			datename(year, data_de_nascimento) )
 		from TABELA_DE_CLIENTES
 		```
+### 6.3 Funções numéricas
+[Verificar neste repositório.](https://github.com/leirdan/sqlserver-studies)
+* Exemplo prático: **Na tabela de notas fiscais, temos o valor do imposto. Já na tabela de itens, temos a quantidade e o faturamento. Calcule o valor do imposto pago no ano de 2016, arredondando para o menor inteiro.**
+	* Resposta:
+		```sql
+		select 
+			year(nf.DATA_VENDA) as Ano, 
+			floor(sum((inf.quantidade * inf.preco) * nf.imposto )) as imposto_pago 
+		from notas_fiscais nf
+		inner join ITENS_NOTAS_FISCAIS inf
+			on inf.NUMERO = nf.NUMERO
+		where year(nf.DATA_VENDA) = 2016
+		group by year(nf.DATA_VENDA)
+		```
