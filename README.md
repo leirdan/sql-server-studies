@@ -233,3 +233,20 @@
 			) 
 			from TABELA_DE_CLIENTES
 		```
+	
+### 6.2 Funções de data
+[Verificar neste repositório.](https://github.com/leirdan/sqlserver-studies)
+Além disso, escreverei algumas adicionais:
+* **datetimefromparts**: retornará uma data baseada em valores passados como parâmetros, que são: **datetimefromparts**(*ano*, *mes*, *dia*, *hora*, *minuto*, *segundos*, *milissegundos*);
+* **datename**: retorna um trecho de uma data a partir de uma data que foi inserida. Por exemplo, o código `select datename(month, '17-02-2004')` retorna "Fevereiro".
+
+* Exemplo prático: **imprima, junto do nome de cada cliente, sua data de nascimento por extenso, incluindo o dia, dia da semana, mês e ano**.
+	* Resposta:
+		```sql
+		select nome, 
+			concat(datename(day, data_de_nascimento), ', ', 
+			datename(weekday, data_de_nascimento), ', ', 
+			datename(month, data_de_nascimento), ' de ', 
+			datename(year, data_de_nascimento) )
+		from TABELA_DE_CLIENTES
+		```
