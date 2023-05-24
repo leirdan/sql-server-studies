@@ -173,3 +173,38 @@
 		select BAIRRO, 'vendedor' as origem from TABELA_DE_VENDEDORES
 		```
 		* Como resultado, teremos 16 registros mesmo utilizando o union, pois, além dele não conseguir mais realizar a distinção de valores repetidos, o nosso intuito é realmente saber de onde veio cada dado, mesmo que este se repita.
+## 5. VIEWS
+* As **visões** (ou *views*) nada mais são que sub-consultas SQL que são frequentemente utilizadas e, por isso, podem ser armazenadas na memória em forma de tabela virtual (não física, pois ela não existe de fato, é somente um resultado de um comando SQL que pode ser acessado frequentemente sem precisarmos inserir manualmente o mesmo comando todas as vezes).
+	* Uma sub-consulta SQL pode ser vista como uma consulta que está dentro de outra consulta. Por exemplo, visualize o seguinte código SQL: 
+		```sql
+		select distinct quantidade_produtos.* from  (
+			select tp.CODIGO_DO_PRODUTO, tp.NOME_DO_PRODUTO, sum(inf.QUANTIDADE) as quantidade
+			from TABELA_DE_PRODUTOS tp
+			inner join ITENS_NOTAS_FISCAIS inf
+				on inf.CODIGO_DO_PRODUTO = tp.CODIGO_DO_PRODUTO
+			group by tp.CODIGO_DO_PRODUTO, tp.NOME_DO_PRODUTO
+		) quantidade_produtos 
+		where quantidade_produtos.quantidade > 394000 
+		order by quantidade desc
+		```
+	* Aqui, temos a seguinte situação: 
+		* A sub-query (que está entre parênteses) seleciona alguns campos das tabelas de produtos e notas fiscais e monta um resultado com o código do produto, seu nome e a soma de sua quantidade vendida.
+		* Após isso, a sub-query é apelidada como *quantidade_produtos*.
+		* Então, uma outra consulta SQL (fora dos parênteses) utiliza o resultado gerado pela sub-query para listar apenas os produtos que venderam mais de 394000 unidades.
+	* Sabendo que o resultado dessa consulta pode ser utilizado diversas vezes por outras consultas, nós podemos criar uma *view* para armazenar esse resultado e agilizar o processo de escrita das querys.
+* Podemos criar uma view a partir do comando **create view**:
+	```sql
+	create view quantidade_produtos_vendidos as
+		select tp.CODIGO_DO_PRODUTO, tp.NOME_DO_PRODUTO, sum(inf.QUANTIDADE) as quantidade
+			from TABELA_DE_PRODUTOS tp
+			inner join ITENS_NOTAS_FISCAIS inf
+				on inf.CODIGO_DO_PRODUTO = tp.CODIGO_DO_PRODUTO
+			group by tp.CODIGO_DO_PRODUTO, tp.NOME_DO_PRODUTO
+	```
+	e usar essa view como se fosse uma tabela no código normal:
+	```sql
+	select distinct quantidade_produtos_vendidos.* from quantidade_produtos_vendidos 
+	where quantidade_produtos_vendidos.quantidade > 394000 
+	order by quantidade desc
+	```
+	* Estes comandos terão o mesmo efeito do primeiro mostrado, só que bem mais legíveis.
