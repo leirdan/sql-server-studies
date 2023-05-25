@@ -280,10 +280,34 @@ Para cumprir este desafio, temos que realizar duas grandes consultas principais:
 	```
 * Já a segunda é necessária para relacionar os resultados desta sub-query (por meio de um *join*) com uma consulta em *TABELA_DOS_CLIENTES*, para verificar se o campo *volume_total* ultrapassa ou não o valor estabelecido no campo *volume_de_compra* de cada cliente. Teremos, ao final, esta consulta:
 
+	```sql
+	select tc.NOME, tc.VOLUME_DE_COMPRA, volume_venda.mes_ano, volume_venda.volume_total, 
+	(case when volume_venda.volume_total > tc.VOLUME_DE_COMPRA then 'Vendas inválidas'
+	else 'Vendas válidas' end) as diagnóstico
+	from TABELA_DE_CLIENTES tc
+	inner join (
+		select nf.CPF,
+		convert(varchar(7), nf.DATA_VENDA, 120) as mes_ano, 
+		sum(inf.quantidade) as volume_total from NOTAS_FISCAIS nf
+		inner join ITENS_NOTAS_FISCAIS inf
+			on nf.NUMERO = inf.NUMERO
+		inner join TABELA_DE_PRODUTOS tp
+			on inf.CODIGO_DO_PRODUTO = tp.CODIGO_DO_PRODUTO
+		group by nf.CPF, convert(varchar(7), nf.DATA_VENDA, 120)
+	) volume_venda
+	on volume_venda.CPF = tc.cpf
+	```
+Portanto, esta última consulta retorna o nome e volume de compra máximo de cada cliente, cada período em que ele comprou, o volume de sua compra e se sua compra ultrapassou o limite (sendo inválida) ou não (sendo válida).
+
+### b) Com base na consulta anterior, selecione somente as vendas inválidas e mostre a diferença em %.
+Para encontrar os registros que são inválidos, devemos utilizar a cláusula **having** (e, adicionalmente, a **group by**).
+Após isso, criamos uma nova coluna que mostra a diferença em % e executamos a operação matemática responsável por isso. Assim, teremos o código final:
 ```sql
 select tc.NOME, tc.VOLUME_DE_COMPRA, volume_venda.mes_ano, volume_venda.volume_total, 
 (case when volume_venda.volume_total > tc.VOLUME_DE_COMPRA then 'Vendas inválidas'
-else 'Vendas válidas' end) as diagnóstico
+else 'Vendas válidas' end) as diagnóstico,
+-- calcular porcentagem e exibir o número com duas casas decimais
+convert(decimal(10,2), (1 - (tc.VOLUME_DE_COMPRA/volume_venda.volume_total) ) * 100) as ultrapassou_qnts_porcent
 from TABELA_DE_CLIENTES tc
 inner join (
 	select nf.CPF,
@@ -296,5 +320,7 @@ inner join (
 	group by nf.CPF, convert(varchar(7), nf.DATA_VENDA, 120)
 ) volume_venda
 on volume_venda.CPF = tc.cpf
+group by volume_venda.volume_total, tc.VOLUME_DE_COMPRA, tc.NOME, volume_venda.mes_ano
+-- selecionando os registros que são classificados como inválidos
+having volume_venda.volume_total > tc.VOLUME_DE_COMPRA
 ```
-Portanto, esta última consulta retorna o nome e volume de compra máximo de cada cliente, cada período em que ele comprou, o volume de sua compra e se sua compra ultrapassou o limite (sendo inválida) ou não (sendo válida).
