@@ -324,3 +324,62 @@ group by volume_venda.volume_total, tc.VOLUME_DE_COMPRA, tc.NOME, volume_venda.m
 -- selecionando os registros que são classificados como inválidos
 having volume_venda.volume_total > tc.VOLUME_DE_COMPRA
 ```
+
+### c) Elabore um relatório anual sobre as vendas dos sucos de frutas por sabor e o percentual de cada venda em relação à venda total
+Para elaborar esse relatório, podemos, primeiramente, consultar as tabelas *TABELA_DE_PRODUTOS*, *NOTAS_FISCAIS* e *ITENS_NOTAS_FISCAIS* e atrelar seus dados por *joins*.	Nesta consulta, selecionamos o sabor do suco, o ano da venda e a soma de todas as quantidades que foram vendidas. Assim, temos:
+```sql
+select tp.SABOR,
+year(nf.DATA_VENDA) as ANO,
+sum(inf.QUANTIDADE) as LITROS_VENDIDOS
+from TABELA_DE_PRODUTOS tp
+	inner join ITENS_NOTAS_FISCAIS inf
+		on inf.CODIGO_DO_PRODUTO = tp.CODIGO_DO_PRODUTO
+	inner join NOTAS_FISCAIS nf
+		on nf.NUMERO = inf.NUMERO
+group by tp.SABOR, year(nf.DATA_VENDA)
+```
+Esta consulta nos retorna uma tabela com as vendas por sabor em cada ano. Entretanto, também precisamos saber quais foram as vendas totais de cada ano se queremos saber a porcentagem de cada venda sobre o total. Então, podemos consultar as tabelas *ITENS_NOTAS_FISCAIS* (recuperar a quantidade) e *NOTAS_FISCAIS* (recuperar o ano de venda) e somar as quantidades por ano, resultando no seguinte código:
+```sql
+select year (nf.DATA_VENDA) as ANO,
+sum(inf.quantidade) as VOLUME_ANO
+from ITENS_NOTAS_FISCAIS inf
+	inner join NOTAS_FISCAIS nf
+		on nf.NUMERO = inf.NUMERO
+group by year (nf.DATA_VENDA)
+```
+Porém, se são consultas separadas, como podemos relacioná-las? Simples: crie uma consulta maior, insira a primeira consulta na forma de sub-query e relacione-a com a segunda a partir do *inner join*. Com o acesso ao volume total vendido por ano e por fruta, na consulta principal, selecionamos os campos *ano* e *volume_ano* da 2ª consulta (VENDA_ANO) e *sabor* e *litros_vendidos_por_ano* da 1ª consula (VENDA_SABOR) e podemos listar tais dados.
+
+Por fim, para calcular a porcentagem das vendas de cada fruta em relação ao total, criemos, na seleção da consulta principal, uma expressão matemática que divida o campo *litros_vendidos_por_ano* pelo *volume_ano* e multiplicamos por 100 para resultar em um valor percentual. Atribuímos um nome para a coluna da porcentagem e executamos. Como resultado, vamos ter as colunas *ano*, *sabor*, *volume_ano*, *litros_vendidos_por_ano* e *percentual*, o que vai gerar o relatório requerido (calcular quanto cada suco vendeu por ano e seu percentual em relação à quantidade vendida).
+
+Desse modo, temos o seguinte código:
+
+```sql
+select VENDA_ANO.ANO, 
+VENDA_SABOR.SABOR,
+VENDA_ANO.VOLUME_ANO,
+VENDA_SABOR.LITROS_VENDIDOS_POR_ANO,
+round((convert(FLOAT, VENDA_SABOR.LITROS_VENDIDOS_POR_ANO) / convert(FLOAT, VENDA_ANO.VOLUME_ANO)) * 100, 2) as percentual
+from (
+	-- primeira query: calcular o total de vendas por sabor
+	select tp.SABOR,
+	year(nf.DATA_VENDA) as ANO,
+	sum(inf.QUANTIDADE) as LITROS_VENDIDOS_POR_ANO
+	from TABELA_DE_PRODUTOS tp
+		inner join ITENS_NOTAS_FISCAIS inf
+			on inf.CODIGO_DO_PRODUTO = tp.CODIGO_DO_PRODUTO
+		inner join NOTAS_FISCAIS nf
+			on nf.NUMERO = inf.NUMERO
+	group by tp.SABOR, year(nf.DATA_VENDA)
+) VENDA_SABOR
+inner join (
+	-- segunda query, calcular o total de vendas por ano
+	select year (nf.DATA_VENDA) as ANO,
+	sum(inf.quantidade) as VOLUME_ANO
+	from ITENS_NOTAS_FISCAIS inf
+	inner join NOTAS_FISCAIS nf
+		on nf.NUMERO = inf.NUMERO
+	group by year (nf.DATA_VENDA)
+) VENDA_ANO
+on VENDA_ANO.ANO = VENDA_SABOR.ANO
+order by LITROS_VENDIDOS_POR_ANO desc;
+```
