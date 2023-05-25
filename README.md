@@ -264,3 +264,37 @@ Além disso, escreverei algumas adicionais:
 		where year(nf.DATA_VENDA) = 2016
 		group by year(nf.DATA_VENDA)
 		```
+## 7. DESAFIOS FINAIS
+### a) Verificar se as compras de cada cliente a cada mês ultrapassam o valor máximo do campo "limite de compra"
+Para cumprir este desafio, temos que realizar duas grandes consultas principais: 
+* A primeira, uma sub-query, envolve as tabelas *ITENS_NOTAS_FISCAIS*, *NOTAS_FISCAIS* e *TABELA_DE_PRODUTOS*, para podermos recuperar a relação de compra de cada cliente a cada mês por meio do CPF contido em *NOTAS_FISCAIS* e da soma de suas compras em cada mês. O resultado serão 3 colunas: o cpf de cada cliente, o mês e ano que o cliente comprou e o volume total de sua compra. Em suma, a consulta será: 
+	```sql
+	select nf.CPF,
+	convert(varchar(7), nf.DATA_VENDA, 120) as mes_ano, 
+	sum(inf.quantidade) as volume_total from NOTAS_FISCAIS nf
+	inner join ITENS_NOTAS_FISCAIS inf
+		on nf.NUMERO = inf.NUMERO
+	inner join TABELA_DE_PRODUTOS tp
+		on inf.CODIGO_DO_PRODUTO = tp.CODIGO_DO_PRODUTO
+	group by nf.CPF, convert(varchar(7), nf.DATA_VENDA, 120)
+	```
+* Já a segunda é necessária para relacionar os resultados desta sub-query (por meio de um *join*) com uma consulta em *TABELA_DOS_CLIENTES*, para verificar se o campo *volume_total* ultrapassa ou não o valor estabelecido no campo *volume_de_compra* de cada cliente. Teremos, ao final, esta consulta:
+
+```sql
+select tc.NOME, tc.VOLUME_DE_COMPRA, volume_venda.mes_ano, volume_venda.volume_total, 
+(case when volume_venda.volume_total > tc.VOLUME_DE_COMPRA then 'Vendas inválidas'
+else 'Vendas válidas' end) as diagnóstico
+from TABELA_DE_CLIENTES tc
+inner join (
+	select nf.CPF,
+	convert(varchar(7), nf.DATA_VENDA, 120) as mes_ano, 
+	sum(inf.quantidade) as volume_total from NOTAS_FISCAIS nf
+	inner join ITENS_NOTAS_FISCAIS inf
+		on nf.NUMERO = inf.NUMERO
+	inner join TABELA_DE_PRODUTOS tp
+		on inf.CODIGO_DO_PRODUTO = tp.CODIGO_DO_PRODUTO
+	group by nf.CPF, convert(varchar(7), nf.DATA_VENDA, 120)
+) volume_venda
+on volume_venda.CPF = tc.cpf
+```
+Portanto, esta última consulta retorna o nome e volume de compra máximo de cada cliente, cada período em que ele comprou, o volume de sua compra e se sua compra ultrapassou o limite (sendo inválida) ou não (sendo válida).
