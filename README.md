@@ -383,3 +383,37 @@ inner join (
 on VENDA_ANO.ANO = VENDA_SABOR.ANO
 order by LITROS_VENDIDOS_POR_ANO desc;
 ```
+
+### d) Modifique o relatório anterior de modo a ver o ranking das vendas por tamanho
+Para obtermos este relatório, basta somente modificarmos os campos *sabor* por *tamanho*, para classificarmos as vendas a partir do tamanho.
+Isso resulta, desse modo, no código:
+```sql
+select VENDA_ANO.ANO, 
+VENDA_SABOR.TAMANHO, 
+VENDA_ANO.VOLUME_ANO,
+VENDA_SABOR.LITROS_VENDIDOS_POR_ANO,
+round((convert(FLOAT, VENDA_SABOR.LITROS_VENDIDOS_POR_ANO) / convert(FLOAT, VENDA_ANO.VOLUME_ANO)) * 100, 2) as percentual
+from (
+	-- primeira query: calcular o total de vendas por sabor
+	select tp.TAMANHO,
+	year(nf.DATA_VENDA) as ANO,
+	sum(inf.QUANTIDADE) as LITROS_VENDIDOS_POR_ANO
+	from TABELA_DE_PRODUTOS tp
+		inner join ITENS_NOTAS_FISCAIS inf
+			on inf.CODIGO_DO_PRODUTO = tp.CODIGO_DO_PRODUTO
+		inner join NOTAS_FISCAIS nf
+			on nf.NUMERO = inf.NUMERO
+	group by tp.TAMANHO, year(nf.DATA_VENDA)
+) VENDA_SABOR
+inner join (
+	-- segunda query, calcular o total de vendas por ano
+	select year (nf.DATA_VENDA) as ANO,
+	sum(inf.quantidade) as VOLUME_ANO
+	from ITENS_NOTAS_FISCAIS inf
+	inner join NOTAS_FISCAIS nf
+		on nf.NUMERO = inf.NUMERO
+	group by year (nf.DATA_VENDA)
+) VENDA_ANO
+on VENDA_ANO.ANO = VENDA_SABOR.ANO
+order by LITROS_VENDIDOS_POR_ANO desc;
+```
