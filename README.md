@@ -1,7 +1,6 @@
-# CONSULTAS AVANÇADAS EM SQL SERVER 2022 E SQL SERVER MANAGEMENT STUDIO 2019 
+# OPERAÇÕES EM SQL SERVER 2022
 * Primeiro, cria-se o banco de dados **SUCOS_VENDAS** através dos códigos SQL do arquivo "/src/Cria_Banco.sql";
-* Após isso, carrega-se o arquivo "src/Carga_Cadastros.sql" para adicionar os vendedores e os produtos;
-* Em seguida, executa-se o arquivo "src/Carga_Notas.sql" para cadastrar todas as notas fiscais dos produtos. É um arquivo gigantesco, então pode demorar para acontecer todas as inserções.
+* Após isso, carrega-se o arquivo "src/Carga_Cadastros.sql" para adicionar os vendedores e os produtos; * Em seguida, executa-se o arquivo "src/Carga_Notas.sql" para cadastrar todas as notas fiscais dos produtos. É um arquivo gigantesco, então pode demorar para acontecer todas as inserções.
 * Por fim, executa-se também o arquivo "src/Carga_Itens_Notas.sql" para carregar os itens das notas fiscais. Novamente, um arquivo colossal, então aguarde.
 
 ## 1. FILTRAGEM
@@ -142,7 +141,86 @@
 			* Para agrupar uma condição, você deve repeti-la no *group by*.
 			* Temos que existem, então, 9 produtos baratos, 11 caros e 11 em conta.
 ## 3. JOINS
-[Verificar neste repositório.](https://github.com/leirdan/sqlserver-studies)
+    Consultar um diagrama de Venn pode ser uma boa opção.
+### 3.1 CONCEITOS
+Sejam A e B dois conjuntos distintos. Teremos que:
+### Inner Join
+* *Inner joins* retornam os **elementos de A com intersecção em B**, ou seja, elementos dos dois conjuntos que são comuns;
+* Em conjuntos, seria o equivalente à $A \cap B$.
+```sql
+select *
+    from TableA a
+    inner join TableB b
+    on a.pk = b.pk
+```
+* *pk* = primary key
+
+### Left Outer Join
+* *Left outer joins* retornam, normalmente, os **elementos de A + os elementos de A com intersecção em B**;
+
+
+* Existem dois tipos de resultados para a consulta:
+1. Consulta inclusiva:
+* Em conjuntos, pode ser denotado por $(A \backslash B) \cup (A \cap B)$
+```sql
+select *
+    from TableA a
+    left join TableB b
+        on a.pk = b.pk
+```
+2. Consulta exclusiva
+* Em conjuntos, pode ser denotado por $A \backslash B$
+```sql
+select *
+    from TableA a
+    left join TableB b
+        on a.pk = b.pk
+    where b.pk is null
+```
+### Right Outer Join
+
+* *Right outer joins* retornam, normalmente, os **elementos de B + os elementos de B com intersecção em A**;
+
+
+* Existem dois tipos de resultados para a consulta:
+1. Consulta inclusiva:
+* Em conjuntos, pode ser denotado por $(B \backslash A) \cup (B \cap A)$
+```sql
+select *
+    from TableA a
+    right join TableB b
+        on a.pk = b.pk
+```
+2. Consulta exclusiva
+* Em conjuntos, pode ser denotado por $B \backslash A$
+```sql
+select *
+    from TableA a
+    right join TableB b
+        on a.pk = b.pk
+    where a.pk is null
+```
+### Full Outer Join
+* *Full outer joins* retornam **A união B**, ou seja, todos os elementos das duas tabelas, em comum ou não.
+
+* Existem dois tipos de resultados para a consulta:
+1. Consulta inclusiva:
+* Em conjuntos, pode ser denotado por $A \cup B$
+```sql
+select *
+    from TableA a
+    full outer join TableB b
+        on a.pk = b.pk
+```
+2. Consulta exclusiva
+* Em conjuntos, pode ser denotado por $(A \cup B) \backslash (A \cap B)$
+```sql
+select *
+    from TableA a
+    full outer join TableB b
+        on a.pk = b.pk
+    where a.pk is null or b.pk is null
+```
 
 ## 4. UNIÃO DE CONSULTAS
 * Ao contrário da junção de consultas, que retorna duas tabelas uma ao lado da outra, a *união de consultas* resulta em uma tabela com as linhas da primeira tabela e, em seguida, as linhas da segunda tabela.
@@ -235,8 +313,14 @@
 		```
 	
 ### 6.2 Funções de data
-[Verificar neste repositório.](https://github.com/leirdan/sqlserver-studies)
-Além disso, escreverei algumas adicionais:
+* **getdate()**: retorna a data corrente no formato norte-americano;
+* **convert()**: converte um valor de um tipo para outro;
+    * Os formatos para data (113, 103, 1, etc.) estão disponíveis na tabela *ANSI SQL*.
+* **day(*v*)**: retorna o dia de um valor *v* em formato de data;
+* **month(*v*)**: retorna o mês de um valor *v* em formato de data; 
+* **year(*v*)**: retorna o ano de um valor *v* em formato de data; 
+* **dateadd**: permite alterar e manipular um valor de data;
+* **datediff**: permite calcular a diferença entre duas datas;  
 * **datetimefromparts**: retornará uma data baseada em valores passados como parâmetros, que são: **datetimefromparts**(*ano*, *mes*, *dia*, *hora*, *minuto*, *segundos*, *milissegundos*);
 * **datename**: retorna um trecho de uma data a partir de uma data que foi inserida. Por exemplo, o código `select datename(month, '17-02-2004')` retorna "Fevereiro".
 
@@ -251,7 +335,19 @@ Além disso, escreverei algumas adicionais:
 		from TABELA_DE_CLIENTES
 		```
 ### 6.3 Funções numéricas
-[Verificar neste repositório.](https://github.com/leirdan/sqlserver-studies)
+* **square(*n*)**: eleva um número ao quadrado;
+* **power(*n*, *m*)**: eleva um número n à potência m;
+* **abs(*n*)**: retorna o módulo (valor absoluto) de um número;
+* **sqrt(*n*)**: tira a raiz quadrada de um número n;
+* **pi()**: retorna o número *pi*;
+* **getdate()**: retorna a data atual com horário;
+* **sign(*n*)**: retorna -1 para um número real negativo e 1 para um positivo;
+* **sum(*c*)**: soma os valores de uma coluna no SQL;
+* **count(*c.c*)**: conta o número de registros de uma coluna;
+* **avg(c)**: calcula a média de uma coluna;
+* **max(c)**: retorna o valor máximo de uma coluna;
+* **min(c)**: retorna o valor mínimo de uma coluna.
+
 * Exemplo prático: **Na tabela de notas fiscais, temos o valor do imposto. Já na tabela de itens, temos a quantidade e o faturamento. Calcule o valor do imposto pago no ano de 2016, arredondando para o menor inteiro.**
 	* Resposta:
 		```sql
@@ -298,7 +394,6 @@ Para cumprir este desafio, temos que realizar duas grandes consultas principais:
 	on volume_venda.CPF = tc.cpf
 	```
 Portanto, esta última consulta retorna o nome e volume de compra máximo de cada cliente, cada período em que ele comprou, o volume de sua compra e se sua compra ultrapassou o limite (sendo inválida) ou não (sendo válida).
-
 ### b) Com base na consulta anterior, selecione somente as vendas inválidas e mostre a diferença em %.
 Para encontrar os registros que são inválidos, devemos utilizar a cláusula **having** (e, adicionalmente, a **group by**).
 Após isso, criamos uma nova coluna que mostra a diferença em % e executamos a operação matemática responsável por isso. Assim, teremos o código final:
@@ -417,3 +512,33 @@ inner join (
 on VENDA_ANO.ANO = VENDA_SABOR.ANO
 order by LITROS_VENDIDOS_POR_ANO desc;
 ```
+
+## 8.TRANSAÇÕES, COMMIT E ROLLBACK
+* Uma transação no SQL Server é uma *unidade lógica de processamento* que tem por objetivo preservar a consistência e integridade dos dados, ou seja, permite ao usuário salvar o estado atual do banco de dados como uma versão que pode ser recuperada posteriormente.
+* Quando queremos iniciar uma transação, devemos utilizar a expressão **begin transaction**. Tal comando salva, temporariamente, o estado atual do banco de dados, e nenhum outro usuário pode, durante esse momento, consultar a tabela que está sob esse efeito.
+* Para confirmar as operações realizadas e salvar o estado atual do banco de dados de forma definitiva, utiliza-se o comando **commit**. Então, outros usuários vão poder acessar a tabela com as novas modificações.
+* Para ignorar as operações que foram realizadas após o *begin transaction* e retornar ao ponto onde executamos esse comando, utilizamos o comando **rollback**, que desfaz essas operações e retorna ao "checkpoint" do database. Então, outros usuários vão poder acessar a tabela da forma que ela estava antes.
+
+* Para fins didáticos, tais comandos funcionam de forma similar ao **git** e GitHub: 
+    * em um repositório do GitHub, podemos ter um projeto em uma versão 1.0; 
+    * fase **begin transaction**: ao acrescentarmos operações, códigos e arquivos neste projeto na nossa máquina, estamos criando um novo estado para esse projeto, **mas que ainda não foi registrado no repositório remoto** e, portanto, nenhum outro desenvolvedor ainda tem acesso ao seu novo código;
+    * fase **commit**: se fizermos um **git commit**, significa que estaremos atualizando o estado do projeto, onde **todos os outros desenvolvedores poderão ter acesso ao seu código**;
+    * fase **rollback**: entretanto, se executarmos um **git reset** ou um **git revert** neste projeto, retornaremos o projeto a um estado específico, descartando os commits feitos durante este processo.
+
+## 9. TRIGGERS/GATILHOS
+* Um *trigger* é um procedimento especial do SQL Server que é ativado automaticamente quando determinado evento ocorrer dentro do banco de dados. Por exemplo, ao inserir um registro em uma tabela, um trigger pode ser acionado e inserir, em outra tabela de *logs*, uma mensagem contendo detalhes dessa inserção.
+* Para definir um trigger, usamos:
+```sql
+CREATE TRIGGER [Nome do gatilho]
+ON [Tabela-alvo]
+[FOR/AFTER/INSTEAD OF] [INSERT/UPDATE/DELETE]
+AS
+BEGIN
+[Corpo do Gatilho]
+END
+```
+* Componentes da trigger:
+    * **for**: trigger será executada *simultaneamente* ao comando na tabela;
+    * **after**: trigger será executada *logo após* ao comando na tabela;
+    * **instead of**: trigger será executada *no lugar* do comando na tabela;
+    * **begin - end**: espaço onde os comandos da trigger serão executados.
